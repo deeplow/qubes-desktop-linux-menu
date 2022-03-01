@@ -380,6 +380,8 @@ class AppPage:
         """
         if app_info.vm:
             entry = BaseAppEntry(app_info)
+            if app_info.vm.name == "work" and app_info.app_name == "Firefox":
+                entry.get_style_context().add_class("highlighted")
             app_info.entries.append(entry)
             self.app_list.add(entry)
 
@@ -389,6 +391,9 @@ class AppPage:
         """
         if vm_entry:
             vm_row = VMRow(vm_entry)
+            if vm_entry.vm_name == "work":
+                vm_row.get_style_context().add_class("highlighted")
+
             vm_row.show_all()
             vm_entry.entries.append(vm_row)
             self.vm_list.add(vm_row)
