@@ -30,8 +30,29 @@ from gi.repository import Gtk, Gdk, GLib, Gio
 import gbulb
 gbulb.install()
 
+import dbus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
+
+from qubes_tutorial import tutorial
+
 
 logger = logging.getLogger('qubes-appmenu')
+
+class TutorialDBUSService(dbus.service.Object):
+    """Listen to Tutorial instructions"""
+    def __init__(self, app):
+        self.app = app
+        bus_name = dbus.service.BusName("org.qubes.tutorial.qubesmenu",
+                                        bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, '/org/qubes/tutorial/qubesmenu')
+
+    @dbus.service.method('org.qubes.tutorial.qubesmenu')
+    def show_path_to_app(self, vm_name, app_name):
+        def on_complete():
+            tutorial.register_interaction("tutorial:next")
+        self.app.show_path_to_app(vm_name, app_name, on_complete)
+        return "highlighted successfully {}, {}".format(vm_name, app_name)
 
 
 class AppMenu(Gtk.Application):
@@ -174,6 +195,10 @@ class AppMenu(Gtk.Application):
         if not self.keep_visible and self.main_window:
             self.main_window.hide()
 
+    def show_path_to_app(self, vm_name, app_name, on_complete):
+        """Highlights an item, showing the user where to click"""
+        self.app_page.highlight(vm_name, app_name, on_complete)
+
     def _key_press(self, _widget, event):
         """
         Keypress handler, to allow closing the menu with an ESC key
@@ -268,9 +293,15 @@ def main():
     """
     Start the menu app
     """
+
     qapp = qubesadmin.Qubes()
     dispatcher = qubesadmin.events.EventsDispatcher(qapp)
     app = AppMenu(qapp, dispatcher)
+
+    # setup tutorial service
+    DBusGMainLoop(set_as_default=True)
+    service = TutorialDBUSService(app)
+
     app.run(sys.argv)
 
     if f'--{constants.RESTART_PARAM_LONG}' in sys.argv or \
