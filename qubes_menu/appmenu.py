@@ -51,6 +51,7 @@ class TutorialDBUSService(dbus.service.Object):
     def show_path_to_app(self, vm_name, app_name):
         def on_complete():
             tutorial.register_interaction("tutorial:next")
+            self.app.clear_path_to_app()
         self.app.show_path_to_app(vm_name, app_name, on_complete)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
@@ -196,8 +197,17 @@ class AppMenu(Gtk.Application):
             self.main_window.hide()
 
     def show_path_to_app(self, vm_name, app_name, on_complete):
-        """Highlights an item, showing the user where to click"""
+        """
+        Highlights an item, showing the user where to click.
+        """
         self.app_page.highlight(vm_name, app_name, on_complete)
+
+    def clear_path_to_app(self):
+        """
+        Clearls all highlights
+        """
+        self.app_page.clear_highlights()
+
 
     def _key_press(self, _widget, event):
         """

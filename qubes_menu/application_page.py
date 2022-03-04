@@ -374,30 +374,43 @@ class AppPage:
         self.widget_order = [self.settings_list, self.app_list,
                              self.control_list]
 
+        self.highlighted_app_entry = None
+        self.highlighted_widgets = []
+
     def highlight(self, vm_name, app_name, on_complete):
         """Highlights specific entries to the user click them"""
 
-        def highlight_vm_name(vm_name):
-            for vm_row in self.vm_list:
-                if vm_row.vm_entry.vm_name == vm_name:
-                    vm_row.get_style_context().add_class("highlighted")
-                    return
-            raise Exception("Unable to highlight vm with name '{}'".format(
-                vm_name))
-
-        def highlight_app_name(app_name):
-            for app_entry in self.app_list:
-                if app_entry.app_info.vm.name == vm_name and\
-                    app_entry.app_info.app_name == app_name:
-                    app_entry.get_style_context().add_class("highlighted")
-                    return
-            raise Exception("Unable to highlight app with name '{}'".format(
-                app_name))
-
         if vm_name is not None:
-            highlight_vm_name(vm_name)
+            vm_row = self._get_vm_row(vm_name)
+            vm_row.get_style_context().add_class("highlighted")
+            self.highlighted_widgets.append(vm_row)
         if app_name is not None:
-            highlight_app_name(app_name)
+            app_entry = self._get_app_entry(vm_name, app_name)
+            app_entry.get_style_context().add_class("highlighted")
+            app_entry.set_on_clicked_callback(on_complete)
+            self.highlighted_widgets.append(app_entry)
+            self.highlighted_app_entry = app_entry
+
+    def clear_highlights(self):
+        for widget in self.highlighted_widgets:
+            widget.get_style_context().remove_class("highlighted")
+        self.highlighted_app_entry.set_on_clicked_callback(None)
+        self.highlighted_app_entry = None
+
+    def _get_vm_row(self, vm_name):
+        for vm_row in self.vm_list:
+            if vm_row.vm_entry.vm_name == vm_name:
+                return vm_row
+        raise Exception("Unable to find vm with name '{}'".format(
+            vm_name))
+
+    def _get_app_entry(self, vm_name, app_name):
+        for app_entry in self.app_list:
+            if app_entry.app_info.vm.name == vm_name and\
+                app_entry.app_info.app_name == app_name:
+                return app_entry
+        raise Exception("Unable to find app '{}' on vm '{}'".format(
+            app_name, vm_name))
 
     def _app_info_callback(self, app_info):
         """
