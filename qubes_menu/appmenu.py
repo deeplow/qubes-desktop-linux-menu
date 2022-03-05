@@ -21,6 +21,7 @@ from .desktop_file_manager import DesktopFileManager
 from .favorites_page import FavoritesPage
 from .custom_widgets import SelfAwareMenu
 from .vm_manager import VMManager
+from .tutorial import tutorial_register, TutorialDBUSService
 from . import constants
 
 import gi
@@ -30,30 +31,9 @@ from gi.repository import Gtk, Gdk, GLib, Gio
 import gbulb
 gbulb.install()
 
-import dbus
-import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
-from qubes_tutorial import tutorial
-
-
 logger = logging.getLogger('qubes-appmenu')
-
-class TutorialDBUSService(dbus.service.Object):
-    """Listen to Tutorial instructions"""
-    def __init__(self, app):
-        self.app = app
-        bus_name = dbus.service.BusName("org.qubes.tutorial.qubesmenu",
-                                        bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/org/qubes/tutorial/qubesmenu')
-
-    @dbus.service.method('org.qubes.tutorial.qubesmenu')
-    def show_path_to_app(self, vm_name, app_name):
-        def on_complete():
-            tutorial.register_interaction("tutorial:next")
-            self.app.clear_path_to_app()
-        self.app.show_path_to_app(vm_name, app_name, on_complete)
-        return "highlighted successfully {}, {}".format(vm_name, app_name)
 
 
 class AppMenu(Gtk.Application):
@@ -74,6 +54,7 @@ class AppMenu(Gtk.Application):
         self.restart = False
         self.initial_page = 0
         self.start_in_background = False
+        self.tutorial_enabled = False
 
         self._add_cli_options()
 
@@ -131,6 +112,15 @@ class AppMenu(Gtk.Application):
             None,
         )
 
+        self.add_main_option(
+            "tutorial",
+            ord("t"),
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            "Enable tutorial mode",
+            None,
+        )
+
     def do_command_line(self, command_line):
         """
         Handle CLI arguments. This method overrides default do_command_line
@@ -151,6 +141,10 @@ class AppMenu(Gtk.Application):
             self.initial_page = options['page']
         if "background" in options:
             self.start_in_background = True
+        if "tutorial" in options:
+            DBusGMainLoop(set_as_default=True)
+            TutorialDBUSService(self)
+            self.tutorial_enabled = True
         self.activate()
         return 0
 
@@ -162,6 +156,7 @@ class AppMenu(Gtk.Application):
         """
         subprocess.Popen('xfce4-session-logout', stdin=subprocess.DEVNULL)
 
+    @tutorial_register("qubes-menu:open")
     def do_activate(self, *args, **kwargs):
         """
         Method called whenever this program is run; it executes actual setup
@@ -187,6 +182,7 @@ class AppMenu(Gtk.Application):
                 else:
                     self.main_window.present()
 
+    @tutorial_register("qubes-menu:hide")
     def hide_menu(self):
         """
         Unless CLI options specified differently, the menu will try to hide
@@ -307,11 +303,6 @@ def main():
     qapp = qubesadmin.Qubes()
     dispatcher = qubesadmin.events.EventsDispatcher(qapp)
     app = AppMenu(qapp, dispatcher)
-
-    # setup tutorial service
-    DBusGMainLoop(set_as_default=True)
-    service = TutorialDBUSService(app)
-
     app.run(sys.argv)
 
     if f'--{constants.RESTART_PARAM_LONG}' in sys.argv or \
