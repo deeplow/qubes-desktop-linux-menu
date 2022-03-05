@@ -1,7 +1,7 @@
 import dbus
 import dbus.service
 
-from qubes_tutorial.tutorial import register_interaction
+import qubes_tutorial.interactions as interactions
 
 def tutorial_register(interaction_name):
     """
@@ -12,7 +12,7 @@ def tutorial_register(interaction_name):
             self = args[0]
             func(*args)
             if self.tutorial_enabled:
-                register_interaction(interaction_name)
+                interactions.register(interaction_name)
         return wrapper
     return tutorial_register_decorator
 
@@ -29,7 +29,7 @@ class TutorialDBUSService(dbus.service.Object):
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def show_path_to_app(self, vm_name, app_name):
         def on_complete():
-            register_interaction("tutorial:next")
+            interactions.register("tutorial:next")
             self.app.clear_path_to_app()
         self.app.show_path_to_app(vm_name, app_name, on_complete)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
