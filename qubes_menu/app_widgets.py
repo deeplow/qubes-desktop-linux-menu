@@ -29,6 +29,7 @@ from .desktop_file_manager import ApplicationInfo
 from .vm_manager import VMManager, VMEntry
 from .utils import load_icon
 from . import constants
+from .tutorial import tutorial_register
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -62,13 +63,6 @@ class AppEntry(Gtk.ListBoxRow):
         self.add(self.event_box)
         self.event_box.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.event_box.connect('button-press-event', self.show_menu)
-        self._on_clicked_callback = None
-
-    def set_on_clicked_callback(self, callback):
-        """
-        Additional callback for when an application is started
-        """
-        self._on_clicked_callback = callback
 
     def show_menu(self, _widget, event):
         """
@@ -92,8 +86,7 @@ class AppEntry(Gtk.ListBoxRow):
         subprocess.Popen(command, stdin=subprocess.DEVNULL)
         self.get_toplevel().get_application().hide_menu()
 
-        if self._on_clicked_callback is not None:
-            self._on_clicked_callback()
+        tutorial_register("qubes-menu", vm.name, self.app_info.app_name)
 
 class BaseAppEntry(AppEntry):
     """

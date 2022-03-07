@@ -31,6 +31,10 @@ def tutorial_register_decorator(interaction_name):
         return wrapper
     return tutorial_register_decorator
 
+def tutorial_register(name: str, subject: str="", arguments: str=""):
+    if tutorial_enabled:
+        interactions.register(name, subject, arguments)
+
 class TutorialDBUSService(dbus.service.Object):
     """
     Listen to tutorial instructions
@@ -43,8 +47,10 @@ class TutorialDBUSService(dbus.service.Object):
 
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def show_path_to_app(self, vm_name, app_name):
-        def on_complete():
-            interactions.register("tutorial:next")
-            self.app.clear_path_to_app()
-        self.app.show_path_to_app(vm_name, app_name, on_complete)
+        self.app.show_path_to_app(vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
+
+    @dbus.service.method('org.qubes.tutorial.qubesmenu')
+    def remove_highlights(self):
+        self.app.clear_path_to_app()
+        return "removed highlights"

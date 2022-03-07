@@ -374,10 +374,9 @@ class AppPage:
         self.widget_order = [self.settings_list, self.app_list,
                              self.control_list]
 
-        self.highlighted_app_entry = None
         self.highlighted_widgets = []
 
-    def highlight(self, vm_name, app_name, on_complete):
+    def highlight(self, vm_name, app_name):
         """Highlights specific entries to the user click them"""
 
         if vm_name is not None:
@@ -387,15 +386,11 @@ class AppPage:
         if app_name is not None:
             app_entry = self._get_app_entry(vm_name, app_name)
             app_entry.get_style_context().add_class("highlighted")
-            app_entry.set_on_clicked_callback(on_complete)
             self.highlighted_widgets.append(app_entry)
-            self.highlighted_app_entry = app_entry
 
     def clear_highlights(self):
         for widget in self.highlighted_widgets:
             widget.get_style_context().remove_class("highlighted")
-        self.highlighted_app_entry.set_on_clicked_callback(None)
-        self.highlighted_app_entry = None
 
     def _get_vm_row(self, vm_name):
         for vm_row in self.vm_list:

@@ -187,11 +187,11 @@ class AppMenu(Gtk.Application):
         if not self.keep_visible and self.main_window:
             self.main_window.hide()
 
-    def show_path_to_app(self, vm_name, app_name, on_complete):
+    def show_path_to_app(self, vm_name, app_name):
         """
         Highlights an item, showing the user where to click.
         """
-        self.app_page.highlight(vm_name, app_name, on_complete)
+        self.app_page.highlight(vm_name, app_name)
 
     def clear_path_to_app(self):
         """
