@@ -21,7 +21,7 @@ from .desktop_file_manager import DesktopFileManager
 from .favorites_page import FavoritesPage
 from .custom_widgets import SelfAwareMenu
 from .vm_manager import VMManager
-from .tutorial import tutorial_register, TutorialDBUSService
+from .tutorial import enable_menu_tutorial, tutorial_register_decorator
 from . import constants
 
 import gi
@@ -30,8 +30,6 @@ from gi.repository import Gtk, Gdk, GLib, Gio
 
 import gbulb
 gbulb.install()
-
-from dbus.mainloop.glib import DBusGMainLoop
 
 logger = logging.getLogger('qubes-appmenu')
 
@@ -54,7 +52,6 @@ class AppMenu(Gtk.Application):
         self.restart = False
         self.initial_page = 0
         self.start_in_background = False
-        self.tutorial_enabled = False
 
         self._add_cli_options()
 
@@ -142,9 +139,7 @@ class AppMenu(Gtk.Application):
         if "background" in options:
             self.start_in_background = True
         if "tutorial" in options:
-            DBusGMainLoop(set_as_default=True)
-            TutorialDBUSService(self)
-            self.tutorial_enabled = True
+            enable_menu_tutorial(self)
         self.activate()
         return 0
 
@@ -156,7 +151,7 @@ class AppMenu(Gtk.Application):
         """
         subprocess.Popen('xfce4-session-logout', stdin=subprocess.DEVNULL)
 
-    @tutorial_register("qubes-menu:open")
+    @tutorial_register_decorator("qubes-menu:open")
     def do_activate(self, *args, **kwargs):
         """
         Method called whenever this program is run; it executes actual setup
@@ -182,7 +177,7 @@ class AppMenu(Gtk.Application):
                 else:
                     self.main_window.present()
 
-    @tutorial_register("qubes-menu:hide")
+    @tutorial_register_decorator("qubes-menu:hide")
     def hide_menu(self):
         """
         Unless CLI options specified differently, the menu will try to hide

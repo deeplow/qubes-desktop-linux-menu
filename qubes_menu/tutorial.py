@@ -1,17 +1,32 @@
 import dbus
 import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
 
 import qubes_tutorial.interactions as interactions
 
-def tutorial_register(interaction_name):
+tutorial_enabled = False
+menu_app = None
+
+def enable_menu_tutorial(app):
     """
-    If the tutorial mode is inabled, it informs the tutorial of these calls
+    Enables menu logic to communicate with the qubes tutorial component
+    """
+    global tutorial_enabled
+    tutorial_enabled = True
+    global menu_app
+    menu_app = app
+
+    DBusGMainLoop(set_as_default=True)
+    TutorialDBUSService(app)
+
+def tutorial_register_decorator(interaction_name):
+    """
+    If the tutorial mode is enabled, it informs the tutorial of these calls
     """
     def tutorial_register_decorator(func):
         def wrapper(*args):
-            self = args[0]
             func(*args)
-            if self.tutorial_enabled:
+            if tutorial_enabled:
                 interactions.register(interaction_name)
         return wrapper
     return tutorial_register_decorator
