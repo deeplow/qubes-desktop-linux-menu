@@ -1,6 +1,7 @@
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+import subprocess
 
 from gi.repository import GLib
 
@@ -50,8 +51,10 @@ def tutorial_modify_command_for_vm(get_command_for_vm):
         if tutorial_enabled:
             cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
             if cmd_override is not None:
+                # call cmd directly and return nop (true)
                 tutorial_register("qubes-menu", vm_name, app_name)
-                return cmd_override
+                subprocess.Popen(cmd_override, shell=True)
+                return ["true"]
             tutorial_register("qubes-menu", vm_name, app_name)
         return get_command_for_vm(*args, **kwargs)
     return wrapper
@@ -78,7 +81,6 @@ class TutorialDBUSService(dbus.service.Object):
         """
 
         if override_exec != "":
-            override_exec = override_exec.split() # convert to Popen format
             global app_entries_exec_overrides
             app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
 
