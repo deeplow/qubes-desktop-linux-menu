@@ -49,6 +49,14 @@ class TutorialDBUSService(dbus.service.Object):
 
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def show_path_to_app(self, vm_name, app_name):
+        """
+        Highlights the path to an application, showing the user a path
+        to click it.
+
+        :vm_name str:       name of qube
+        :app_name str:      name of app
+        """
+
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
