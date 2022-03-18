@@ -8,6 +8,7 @@ import qubes_tutorial.interactions as interactions
 
 tutorial_enabled = False
 menu_app = None
+app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
 
 def enable_menu_tutorial(app):
     """
@@ -37,6 +38,24 @@ def tutorial_register(name: str, subject: str="", arguments: str=""):
     if tutorial_enabled:
         interactions.register(name, subject, arguments)
 
+def tutorial_modify_command_for_vm(get_command_for_vm):
+    """
+    If the tutorial mode is enabled, it overrides the app exec command when
+    """
+    def wrapper(*args, **kwargs):
+        app_info = args[0]
+        app_name = app_info.app_name
+        vm = args[1]
+        vm_name = vm.name
+        if tutorial_enabled:
+            cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
+            if cmd_override is not None:
+                tutorial_register("qubes-menu", vm_name, app_name)
+                return cmd_override
+            tutorial_register("qubes-menu", vm_name, app_name)
+        return get_command_for_vm(*args, **kwargs)
+    return wrapper
+
 class TutorialDBUSService(dbus.service.Object):
     """
     Listen to tutorial instructions
@@ -48,14 +67,20 @@ class TutorialDBUSService(dbus.service.Object):
         dbus.service.Object.__init__(self, bus_name, '/org/qubes/tutorial/qubesmenu')
 
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
-    def show_path_to_app(self, vm_name, app_name):
+    def show_path_to_app(self, vm_name, app_name, override_exec):
         """
         Highlights the path to an application, showing the user a path
         to click it.
 
         :vm_name str:       name of qube
         :app_name str:      name of app
+        :override_exec str: executable command to override when user clicks
         """
+
+        if override_exec != "":
+            override_exec = override_exec.split() # convert to Popen format
+            global app_entries_exec_overrides
+            app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
 
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
@@ -63,4 +88,8 @@ class TutorialDBUSService(dbus.service.Object):
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def remove_highlights(self):
         GLib.idle_add(self.app.clear_path_to_app)
+
+        global app_entries_exec_overrides
+        app_entries_exec_overrides.clear()
+
         return "removed highlights"

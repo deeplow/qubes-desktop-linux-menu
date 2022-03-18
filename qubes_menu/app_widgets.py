@@ -86,8 +86,6 @@ class AppEntry(Gtk.ListBoxRow):
         subprocess.Popen(command, stdin=subprocess.DEVNULL)
         self.get_toplevel().get_application().hide_menu()
 
-        tutorial_register("qubes-menu", vm.name, self.app_info.app_name)
-
 class BaseAppEntry(AppEntry):
     """
     A 'normal' Application row, used by main applications menu and system tools.
