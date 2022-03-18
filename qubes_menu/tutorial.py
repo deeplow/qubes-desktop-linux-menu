@@ -2,6 +2,8 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
+from gi.repository import GLib
+
 import qubes_tutorial.interactions as interactions
 
 tutorial_enabled = False
@@ -47,10 +49,10 @@ class TutorialDBUSService(dbus.service.Object):
 
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def show_path_to_app(self, vm_name, app_name):
-        self.app.show_path_to_app(vm_name, app_name)
+        GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
     @dbus.service.method('org.qubes.tutorial.qubesmenu')
     def remove_highlights(self):
-        self.app.clear_path_to_app()
+        GLib.idle_add(self.app.clear_path_to_app)
         return "removed highlights"
