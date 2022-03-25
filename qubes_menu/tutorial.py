@@ -65,11 +65,11 @@ class TutorialDBUSService(dbus.service.Object):
     """
     def __init__(self, app):
         self.app = app
-        bus_name = dbus.service.BusName("org.qubes.tutorial.qubesmenu",
+        bus_name = dbus.service.BusName("org.qubes.tutorial.extensions",
                                         bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/org/qubes/tutorial/qubesmenu')
+        dbus.service.Object.__init__(self, bus_name, '/qubesmenu')
 
-    @dbus.service.method('org.qubes.tutorial.qubesmenu')
+    @dbus.service.method('org.qubes.tutorial.extensions')
     def show_path_to_app(self, vm_name, app_name, override_exec):
         """
         Highlights the path to an application, showing the user a path
@@ -87,7 +87,7 @@ class TutorialDBUSService(dbus.service.Object):
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
-    @dbus.service.method('org.qubes.tutorial.qubesmenu')
+    @dbus.service.method('org.qubes.tutorial.extensions')
     def remove_highlights(self):
         GLib.idle_add(self.app.clear_path_to_app)
 
