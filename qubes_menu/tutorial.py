@@ -21,7 +21,6 @@ def enable_menu_tutorial(app):
     global menu_app
     menu_app = app
 
-    DBusGMainLoop(set_as_default=True)
     QubesMenuTutorialExtension(app)
 
 def tutorial_register_decorator(interaction_name):
