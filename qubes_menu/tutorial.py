@@ -36,22 +36,28 @@ class QubesMenuTutorialExtension(TutorialExtension):
         self.app = app
 
 
-    def do_show_path_to_app(self, vm_name, app_name, override_exec):
+    def do_show_path_to_app(self, vm_name, app_name):
         """
         Highlights the path to an application, showing the user a path
         to click it.
 
         :vm_name str:       name of qube
         :app_name str:      name of app
-        :override_exec str: executable command to override when user clicks
         """
-
-        if override_exec != "":
-            global app_entries_exec_overrides
-            app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
-
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
+
+    def do_show_path_to_app_override_exec(self, vm_name, app_name, override_exec):
+        """
+        Highlights the path to an application, showing the user a path
+        to click it. When the user clicks it, it executes instead the commmand
+        provided with `override_exec`.
+
+        :override_exec str: executable command to override when user clicks
+        """
+        global app_entries_exec_overrides
+        app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
+        self.do_show_path_to_app(vm_name, app_name)
 
     def do_remove_highlights(self):
         GLib.idle_add(self.app.clear_path_to_app)

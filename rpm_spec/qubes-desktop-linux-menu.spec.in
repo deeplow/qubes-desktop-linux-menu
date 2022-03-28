@@ -51,7 +51,7 @@ Requires:  python%{python3_pkgversion}-gbulb
 Requires:  gtk3
 Requires:  python%{python3_pkgversion}-qubesadmin >= 4.1.8
 Requires:  qubes-artwork >= 4.1.5
-Requires:  qubes-tutorial >= 1.0.4
+Requires:  qubes-tutorial >= 1.0.5
 
 Provides:   qubes_menu = %{version}-%{release}
 
