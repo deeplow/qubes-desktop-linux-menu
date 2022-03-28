@@ -6,6 +6,7 @@ import subprocess
 from gi.repository import GLib
 
 import qubes_tutorial.interactions as interactions
+from qubes_tutorial.extensions import TutorialExtension
 
 tutorial_enabled = False
 menu_app = None
@@ -21,7 +22,7 @@ def enable_menu_tutorial(app):
     menu_app = app
 
     DBusGMainLoop(set_as_default=True)
-    TutorialDBUSService(app)
+    QubesMenuTutorialExtension(app)
 
 def tutorial_register_decorator(interaction_name):
     """
@@ -59,18 +60,14 @@ def tutorial_modify_command_for_vm(get_command_for_vm):
         return get_command_for_vm(*args, **kwargs)
     return wrapper
 
-class TutorialDBUSService(dbus.service.Object):
-    """
-    Listen to tutorial instructions
-    """
-    def __init__(self, app):
-        self.app = app
-        bus_name = dbus.service.BusName("org.qubes.tutorial.extensions",
-                                        bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/qubesmenu')
+class QubesMenuTutorialExtension(TutorialExtension):
 
-    @dbus.service.method('org.qubes.tutorial.extensions')
-    def show_path_to_app(self, vm_name, app_name, override_exec):
+    def __init__(self, app):
+        super().__init__("qubesmenu")
+        self.app = app
+
+
+    def do_show_path_to_app(self, vm_name, app_name, override_exec):
         """
         Highlights the path to an application, showing the user a path
         to click it.
@@ -87,8 +84,7 @@ class TutorialDBUSService(dbus.service.Object):
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
-    @dbus.service.method('org.qubes.tutorial.extensions')
-    def remove_highlights(self):
+    def do_remove_highlights(self):
         GLib.idle_add(self.app.clear_path_to_app)
 
         global app_entries_exec_overrides
