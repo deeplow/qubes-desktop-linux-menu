@@ -35,7 +35,7 @@ import qubesadmin.vm
 import qubesadmin.events
 
 from . import constants
-from .tutorial import tutorial_modify_command_for_vm
+from .tutorial import tutorial_override_command_for_vm
 
 
 logger = logging.getLogger('qubes-appmenu')
@@ -103,7 +103,7 @@ class ApplicationInfo:
         for menu_entry in self.entries:
             menu_entry.update_contents()
 
-    @tutorial_modify_command_for_vm
+    @tutorial_override_command_for_vm
     def get_command_for_vm(self, vm=None):
         """Get execution command for a specified VM. We're not using contents
         of an Exec field directly because freshly-minted DispVMs don't have

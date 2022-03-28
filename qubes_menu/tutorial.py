@@ -13,7 +13,7 @@ from qubes_tutorial.extensions import (
 
 app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
 
-def tutorial_modify_command_for_vm(get_command_for_vm):
+def tutorial_override_command_for_vm(get_command_for_vm):
     """
     If the tutorial mode is enabled, it overrides the app exec command when
     """
