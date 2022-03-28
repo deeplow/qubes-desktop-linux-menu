@@ -29,7 +29,6 @@ from .desktop_file_manager import ApplicationInfo
 from .vm_manager import VMManager, VMEntry
 from .utils import load_icon
 from . import constants
-from .tutorial import tutorial_register
 
 import gi
 gi.require_version('Gtk', '3.0')

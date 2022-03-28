@@ -5,36 +5,12 @@ import subprocess
 
 from gi.repository import GLib
 
-import qubes_tutorial.interactions as interactions
-from qubes_tutorial.extensions import TutorialExtension
+from qubes_tutorial.extensions import (
+    TutorialExtension,
+    tutorial_register
+)
 
-tutorial_enabled = False
 app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
-
-def enable_menu_tutorial(app):
-    """
-    Enables menu logic to communicate with the qubes tutorial component
-    """
-    global tutorial_enabled
-    tutorial_enabled = True
-
-    QubesMenuTutorialExtension(app)
-
-def tutorial_register_decorator(interaction_name):
-    """
-    If the tutorial mode is enabled, it informs the tutorial of these calls
-    """
-    def tutorial_register_decorator(func):
-        def wrapper(*args):
-            func(*args)
-            if tutorial_enabled:
-                interactions.register(interaction_name)
-        return wrapper
-    return tutorial_register_decorator
-
-def tutorial_register(name: str, subject: str="", arguments: str=""):
-    if tutorial_enabled:
-        interactions.register(name, subject, arguments)
 
 def tutorial_modify_command_for_vm(get_command_for_vm):
     """
@@ -45,7 +21,7 @@ def tutorial_modify_command_for_vm(get_command_for_vm):
         app_name = app_info.app_name
         vm = args[1]
         vm_name = vm.name
-        if tutorial_enabled:
+        if QubesMenuTutorialExtension.is_tutorial_enabled():
             cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
             if cmd_override is not None:
                 # call cmd directly and return nop (true)
