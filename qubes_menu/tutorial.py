@@ -9,7 +9,6 @@ import qubes_tutorial.interactions as interactions
 from qubes_tutorial.extensions import TutorialExtension
 
 tutorial_enabled = False
-menu_app = None
 app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
 
 def enable_menu_tutorial(app):
@@ -18,8 +17,6 @@ def enable_menu_tutorial(app):
     """
     global tutorial_enabled
     tutorial_enabled = True
-    global menu_app
-    menu_app = app
 
     QubesMenuTutorialExtension(app)
 
