@@ -1,8 +1,4 @@
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
 import subprocess
-
 from gi.repository import GLib
 
 from qubes_tutorial.extensions import (
