@@ -7,7 +7,8 @@ from gi.repository import GLib
 
 from qubes_tutorial.extensions import (
     TutorialExtension,
-    tutorial_register
+    tutorial_register,
+    if_tutorial_enabled
 )
 
 app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
@@ -16,19 +17,19 @@ def tutorial_modify_command_for_vm(get_command_for_vm):
     """
     If the tutorial mode is enabled, it overrides the app exec command when
     """
+    @if_tutorial_enabled
     def wrapper(*args, **kwargs):
         app_info = args[0]
         app_name = app_info.app_name
         vm = args[1]
         vm_name = vm.name
-        if QubesMenuTutorialExtension.is_tutorial_enabled():
-            cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
-            if cmd_override is not None:
-                # call cmd directly and return nop (true)
-                tutorial_register("qubes-menu", vm_name, app_name)
-                subprocess.Popen(cmd_override, shell=True)
-                return ["true"]
+        cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
+        if cmd_override is not None:
+            # call cmd directly and return nop (true)
             tutorial_register("qubes-menu", vm_name, app_name)
+            subprocess.Popen(cmd_override, shell=True)
+            return ["true"]
+        tutorial_register("qubes-menu", vm_name, app_name)
         return get_command_for_vm(*args, **kwargs)
     return wrapper
 
