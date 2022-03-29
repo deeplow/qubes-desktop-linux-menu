@@ -22,6 +22,7 @@ Application page and related widgets and logic
 """
 import subprocess
 from typing import Optional
+import qubes_tutorial.extensions
 
 from .desktop_file_manager import DesktopFileManager
 from .custom_widgets import LimitedWidthLabel, NetworkIndicator, \
@@ -381,16 +382,16 @@ class AppPage:
 
         if vm_name is not None:
             vm_row = self._get_vm_row(vm_name)
-            vm_row.get_style_context().add_class("highlighted")
+            qubes_tutorial.extensions.widget_highlight(vm_row)
             self.highlighted_widgets.append(vm_row)
         if app_name is not None:
             app_entry = self._get_app_entry(vm_name, app_name)
-            app_entry.get_style_context().add_class("highlighted")
+            qubes_tutorial.extensions.widget_highlight(app_entry)
             self.highlighted_widgets.append(app_entry)
 
     def clear_highlights(self):
         for widget in self.highlighted_widgets:
-            widget.get_style_context().remove_class("highlighted")
+            qubes_tutorial.extensions.widget_highlight_remove(widget)
 
     def _get_vm_row(self, vm_name):
         for vm_row in self.vm_list:

@@ -165,12 +165,3 @@ separator {
     margin: 20px;
     padding: 0px;
 }
-
-@keyframes animated-highlight {
-  from { box-shadow: inset 0px 0px 4px  @theme_selected_bg_color; }
-  to   { box-shadow: inset 0px 0px 10px @theme_selected_bg_color; }
-}
-
-.highlighted {
-  animation: animated-highlight 1s infinite alternate;
-}

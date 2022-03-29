@@ -2,7 +2,7 @@ import subprocess
 from gi.repository import GLib
 
 from qubes_tutorial.extensions import (
-    TutorialExtension,
+    GtkTutorialExtension,
     tutorial_register,
     if_tutorial_enabled
 )
@@ -29,7 +29,7 @@ def tutorial_override_command_for_vm(get_command_for_vm):
         return get_command_for_vm(*args, **kwargs)
     return wrapper
 
-class QubesMenuTutorialExtension(TutorialExtension):
+class QubesMenuTutorialExtension(GtkTutorialExtension):
 
     def __init__(self, app):
         super().__init__("qubesmenu")
