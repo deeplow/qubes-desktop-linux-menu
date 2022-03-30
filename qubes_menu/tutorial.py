@@ -22,21 +22,21 @@ def tutorial_override_command_for_vm(get_command_for_vm):
         cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
         if cmd_override is not None:
             # call cmd directly and return nop (true)
-            tutorial_register("qubes-menu", vm_name, app_name)
+            tutorial_register("qubes_menu", vm_name, app_name)
             subprocess.Popen(cmd_override, shell=True)
             return ["true"]
-        tutorial_register("qubes-menu", vm_name, app_name)
+        tutorial_register("qubes_menu", vm_name, app_name)
         return get_command_for_vm(*args, **kwargs)
     return wrapper
 
 class QubesMenuTutorialExtension(GtkTutorialExtension):
 
     def __init__(self, app):
-        super().__init__("qubesmenu")
+        super().__init__("qubes_menu")
         self.app = app
 
 
-    def do_show_path_to_app(self, vm_name, app_name):
+    def do_show_tutorial_path_to_app(self, vm_name, app_name):
         """
         Highlights the path to an application, showing the user a path
         to click it.
@@ -47,7 +47,8 @@ class QubesMenuTutorialExtension(GtkTutorialExtension):
         GLib.idle_add(self.app.show_path_to_app, vm_name, app_name)
         return "highlighted successfully {}, {}".format(vm_name, app_name)
 
-    def do_show_path_to_app_override_exec(self, vm_name, app_name, override_exec):
+    def do_show_tutorial_path_to_app_override_exec(self, vm_name, app_name,
+                                                   override_exec):
         """
         Highlights the path to an application, showing the user a path
         to click it. When the user clicks it, it executes instead the commmand
@@ -57,9 +58,9 @@ class QubesMenuTutorialExtension(GtkTutorialExtension):
         """
         global app_entries_exec_overrides
         app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
-        self.do_show_path_to_app(vm_name, app_name)
+        self.do_show_tutorial_path_to_app(vm_name, app_name)
 
-    def do_remove_highlights(self):
+    def do_hide_tutorial_path(self):
         GLib.idle_add(self.app.clear_path_to_app)
 
         global app_entries_exec_overrides

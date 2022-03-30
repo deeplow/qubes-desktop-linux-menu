@@ -152,7 +152,7 @@ class AppMenu(Gtk.Application):
         """
         subprocess.Popen('xfce4-session-logout', stdin=subprocess.DEVNULL)
 
-    @qubes_tutorial.extensions.tutorial_register_decorator("qubes-menu:open")
+    @qubes_tutorial.extensions.register("qubes_menu:open")
     def do_activate(self, *args, **kwargs):
         """
         Method called whenever this program is run; it executes actual setup
@@ -178,7 +178,7 @@ class AppMenu(Gtk.Application):
                 else:
                     self.main_window.present()
 
-    @qubes_tutorial.extensions.tutorial_register_decorator("qubes-menu:hide")
+    @qubes_tutorial.extensions.register("qubes_menu:hide")
     def hide_menu(self):
         """
         Unless CLI options specified differently, the menu will try to hide
