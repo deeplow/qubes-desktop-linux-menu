@@ -55,6 +55,9 @@ class QubesMenuTutorialExtension(GtkTutorialExtension):
         global app_entries_exec_overrides
         app_entries_exec_overrides[f"{vm_name}:{app_name}"] = override_exec
 
+    def cleanup(self):
+        self.do_hide_tutorial_path()
+
     def do_hide_tutorial_path(self):
         GLib.idle_add(self.app.clear_path_to_app)
 

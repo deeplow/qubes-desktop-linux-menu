@@ -73,6 +73,8 @@ class AppMenu(Gtk.Application):
         self.power_button: Optional[Gtk.Button] = None
         self.tasks = []
 
+        QubesMenuTutorialExtension(self)
+
     def _add_cli_options(self):
         self.add_main_option(
             "keep-visible",
@@ -110,15 +112,6 @@ class AppMenu(Gtk.Application):
             None,
         )
 
-        self.add_main_option(
-            "tutorial",
-            ord("t"),
-            GLib.OptionFlags.NONE,
-            GLib.OptionArg.NONE,
-            "Enable tutorial mode",
-            None,
-        )
-
     def do_command_line(self, command_line):
         """
         Handle CLI arguments. This method overrides default do_command_line
@@ -139,8 +132,6 @@ class AppMenu(Gtk.Application):
             self.initial_page = options['page']
         if "background" in options:
             self.start_in_background = True
-        if "tutorial" in options:
-            QubesMenuTutorialExtension(self)
         self.activate()
         return 0
 
