@@ -19,7 +19,7 @@ def tutorial_override_command_for_vm(get_command_for_vm):
         app_info = args[0]
         app_name = app_info.app_name
         vm = args[1]
-        vm_name = vm.name
+        vm_name = vm.name if vm else 'dom0'
         cmd_override = app_entries_exec_overrides.get(f"{vm_name}:{app_name}")
         if cmd_override is not None:
             # call cmd directly and return nop (true)
