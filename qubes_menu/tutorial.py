@@ -4,7 +4,7 @@ from gi.repository import GLib
 from qubes_tutorial.extensions import (
     GtkTutorialExtension,
     tutorial_register,
-    if_tutorial_enabled
+    is_tutorial_enabled
 )
 
 app_entries_exec_overrides = {} #  "{vm_name}:{app_name}" -> command
@@ -13,8 +13,9 @@ def tutorial_override_command_for_vm(get_command_for_vm):
     """
     If the tutorial mode is enabled, it overrides the app exec command when
     """
-    @if_tutorial_enabled
     def wrapper(*args, **kwargs):
+        if not is_tutorial_enabled():
+            return get_command_for_vm(*args, **kwargs)
         app_info = args[0]
         app_name = app_info.app_name
         vm = args[1]
